@@ -1,67 +1,180 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
 
+
+<link rel="import" href="/bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="/bower_components/iron-icons/communication-icons.html">
+
+<link rel="import" href="/bower_components/paper-card/paper-card.html">
+<link rel="import" href="/bower_components/paper-fab/paper-fab.html">
+<link rel="import" href="/bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="/bower_components/paper-icon-button/paper-icon-button.html">
 <dom-module id="app-convey">
     <template>
 
         <style>
+            :host {
+                display: block;
+                background-attachment: fixed;
+                background-size: 100% auto;
+                background-repeat: no-repeat;
+                position: relative;
+                height: 100%;
+            }
 
+            .avatar-container {
+              position: relative;
+              border: 2px solid #ffffff;
+              border-radius: 50%;
+              height: 120px;
+              width: 120px;
+              margin: 80px auto 20px;
+            }
+
+            .avatar-container .image {
+                background-size: contain;
+                border-radius: 50%;
+                height: 100%;
+                width: 100%;
+            }
+
+            .call-title {
+                margin: auto;
+            }
+
+            app-header-layout {
+                height: 100%;
+                position: relative;
+            }
+
+            .app-header-layout {
+                position: relative;
+                height: 100%;
+            }
+
+            paper-icon-button {
+                color: white;
+                --paper-icon-button-ink-color: white;
+            }
+
+            .card-container {
+                position: relative;
+                width: 100%;
+                height: 100%;
+            }
+
+            .card-content {
+                position: relative;
+                height: 100%;
+                box-sizing: border-box;
+            }
+
+            paper-card {
+                width: 100%;
+                sizing: border-box;
+                background-color: #182d42;
+                color: white;
+                height: 100%;
+                position: relative;
+                top: 0;
+                text-align: center;
+                height: 100%;
+            }
+
+            paper-card p {
+                margin: 12px 0;
+                color: #999;
+            }
+
+            h4 {
+                margin: 60px 0 12px;
+            }
+
+            .buttons-wrapper {
+                position: absolute;
+                width: 100%;
+                bottom: 80px;
+                left: 0;
+                padding: 0 50px;
+                box-sizing: border-box;
+            }
+
+            .button-end-call {
+                background-color: tomato;
+                float: left;
+            }
+
+            .button-call {
+                background-color: mediumseagreen;
+                float: right;
+            }
         </style>
 
+
+
         <!-- main panel -->
-        <div on-tap="_initCall">[[selectedUser.displayName]]</div>
+        <app-layout>
 
-        <div></div>
+            <paper-card>
 
-        <div id="alert" class="alert alert-block alert-error" style="display:none;">
-            <h4 class="alert-heading" id="message"></h4>
-        </div>
+                <div class="card-content">
 
-        <div id="mainContainer">
+                    <div class="avatar-container">
+                        <div class="image" style$="[[computePhoto(selectedUser)]]"></div>
+                    </div>
 
-            <div id="welcome" class="span4" style="display:none;">
-                <h3>Welcome {{user.name}}!</h3>
-                <p>Click on any online user to initiate a chat.</p>
-            </div>
+                    <h2 class="call-title" on-tap="_initCall">[[selectedUser.alias]]</h2>
 
-            <br/>
+                    <div style="display:none">
 
-            <div class="modal" id="incomingCall" tabindex="-1" role="dialog" aria-labelledby="incomingCall" aria-hidden="true">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                    <h3>Incoming Call</h3>
+                        <div id="alert" class="alert alert-block alert-error" style="display:none;">
+                            <h4 class="alert-heading" id="message"></h4>
+                        </div>
+
+                        <div id="mainContainer">
+
+                            <div class="modal" id="incomingCall" tabindex="-1" role="dialog" aria-labelledby="incomingCall" aria-hidden="true">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                                    <h3>Incoming Call</h3>
+                                </div>
+                                <div class="modal-body">
+                                    <img src="img/incoming.png" />
+                                    <br/>
+                                    <p>&nbsp;</p>
+                                    <p>You have an incoming call from <span id="incomingUser" on-click="_acceptCall">{{incomingUser}}</span></p>
+                                    <audio id="incomingRing" src="ring.ogg" loop/>
+                                </div>
+                                <div class="modal-footer">
+                                    <button class="btn" data-dismiss="modal" aria-hidden="true">Reject</button>
+                                    <button id="incomingAccept" class="btn btn-primary">Accept</button>
+                                </div>
+                            </div>
+
+                            <div id="call" class="container">
+                                <span id="dialing">
+                                    <img src="img/loading.gif"/>
+                                    <b>Dialing...</b>
+                                  </span>
+                                <span id="hangup" style="display: none;">
+                                    <a class="btn btn-danger" on-click="_endCall">Hang Up</a>
+                                  </span>
+                                <span>
+                                    <h3>Remote</h3>
+                                    <video width="640" height="480" id="remotevideo" controls/>
+                                  </span>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="buttons-wrapper">
+                        <paper-fab class="button-end-call" icon="communication:call-end" on-tap="__toggleFavorite"></paper-fab>
+                        <paper-fab class="button-call" icon="communication:call" on-tap="__toggleFavorite"></paper-fab>
+                    </div>
+
                 </div>
-                <div class="modal-body">
-                    <img src="img/incoming.png" />
-                    <br/>
-                    <p>&nbsp;</p>
-                    <p>You have an incoming call from <span id="incomingUser" on-click="_acceptCall">{{incomingUser}}</span></p>
-                    <audio id="incomingRing" src="ring.ogg" loop/>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn" data-dismiss="modal" aria-hidden="true">Reject</button>
-                    <button id="incomingAccept" class="btn btn-primary">Accept</button>
-                </div>
-            </div>
-
-              <div id="call" class="container" >
-                  <span id="dialing">
-                  <img src="img/loading.gif"/>
-                  <b>Dialing...</b>
-                </span>
-                  <span id="hangup" style="display: none;">
-                  <a class="btn btn-danger" onclick="endCall();">Hang Up</a>
-                </span>
-                  <span>
-                  <h3>Remote</h3>
-                  <video width="640" height="480" id="remotevideo" controls/>
-                </span>
-                  <span>
-                  <h3>Local</h3>
-                  <video width="320" height="240" id="localvideo" controls/>
-                </span>
-              </div>
-
-        </div>
+            </paper-card>
+        </app-layout>
 
     </template>
 
@@ -78,7 +191,6 @@
             };
 
             firebase.initializeApp(config);
-
 
             // Ugh, globals.
             var peerc;
@@ -189,49 +301,43 @@
                 userSDP.onDisconnect().remove();
                 userStatus.onDisconnect().set(false);
 
-/*
+                /* Destroy on destroy
                 $(window).unload(function() {
                     userSDP.set(null);
                     userStatus.set(false);
-                });
-*/
+                });*/
+
                 // Now online.
                 userStatus.set(true);
 
-                mainRef.on("child_added", function(snapshot) {
-                    var data = snapshot.val();
-                    if (data.presence) {
-                        //appendUser.call(this, snapshot.getKey());
-                    }
-                }.bind(this));
-
                 mainRef.on("child_changed", function(snapshot) {
-                    var data = snapshot.val();
-                    if (data.presence) {
-                        removeUser(snapshot.getKey());
-                    }
 
-                    if (!data.presence) {
-                        removeUser(snapshot.getKey());
-                    }
+                    var data = snapshot.val();
+
                     if (data.sdp && data.sdp.to == myUserID) {
+
                         if (data.sdp.type == "offer") {
                             incomingOffer.call(this, data.sdp.offer, data.sdp.from)
                             userSDP.set(null);
                         }
+
                         if (data.sdp.type == "answer") {
                             incomingAnswer(data.sdp.answer);
                             userSDP.set(null);
                         }
                     }
+
                     if (data.ice && data.ice.to == myUserID) {
+
                         var candidate = new RTCIceCandidate({
                             sdpMLineIndex: data.ice.label,
                             candidate: data.ice.candidate
                         });
+
                         peerc.addIceCandidate(candidate);
                         userICE.set(null);
                     }
+
                 }.bind(this));
             }
 
@@ -239,15 +345,14 @@
                 document.getElementById("message").innerHTML = msg;
                 document.getElementById("alert").style.display = "block";
             }
-/*
-            this.$.incomingCall.on("hidden", function() {
-                document.getElementById("incomingRing").pause();
-            });*/
+            /*
+                        this.$.incomingCall.on("hidden", function() {
+                            document.getElementById("incomingRing").pause();
+                        });*/
 
             function incomingOffer(offer, fromUser) {
 
                 this.incomingUser = atob(fromUser);
-                debugger;
                 this.$.incomingAccept.onclick = function() {
                     //this.$.incomingCall.modal("hide");
                     acceptCall.call(this, offer, fromUser);
@@ -263,31 +368,16 @@
                 }, error);
             };
 
-            function appendUser(userid) {
-              debugger;
-                if (userid == myUserID) return;
-
-
-            }
-
-            function removeUser(userid) {
-                var d = document.getElementById(userid);
-                if (d) {
-                    document.getElementById("users").removeChild(d);
-                }
-            }
-
             // TODO: refactor, this function is almost identical to initiateCall().
             function acceptCall(offer, fromUser) {
-              debugger;
+
                 console.log("Incoming call with offer " + offer);
 
                 getUserMedia({
-                    video: true,
+                    video: false,
                     audio: true
                 }, function(vs) {
-                  debugger;
-                    attachMediaStream(this.$.localvideo, vs);
+
                     var pc = makePC();
                     peerc = pc;
                     pc.onicecandidate = function(event) {
@@ -300,7 +390,7 @@
                             };
                             mainRef.child(iceSend.to).child("ice").set(iceSend);
                         } else {
-                            log("End of ICE candidates");
+                            console.log("End of ICE candidates");
                         }
                     }.bind(this);
                     pc.addStream(vs);
@@ -336,14 +426,12 @@
             }
 
             function initiateCall(userid) {
-              debugger;
-                this.showVideo = true;
 
                 getUserMedia({
-                    video: true,
+                    video: false,
                     audio: true
                 }, function(vs) {
-                    attachMediaStream(this.$.localvideo, vs);
+
                     var pc = makePC();
                     peerc = pc;
                     pc.onicecandidate = function(event) {
@@ -359,6 +447,7 @@
                             console.log("End of ICE candidates");
                         }
                     }.bind(this);
+
                     pc.addStream(vs);
 
                     pc.onaddstream = function(obj) {
@@ -388,16 +477,11 @@
                 }.bind(this), error);
             }
 
-            function endCall() {
+            function _endCall() {
+
                 console.log("Ending call");
-                document.getElementById("call").style.display = "none";
-                document.getElementById("main").style.display = "block";
-
-                document.getElementById("localvideo").pause();
                 document.getElementById("remotevideo").pause();
-                document.getElementById("localvideo").src = null;
                 document.getElementById("remotevideo").src = null;
-
                 peerc = null;
             }
 
@@ -407,34 +491,39 @@
                 } else {
                     alert("Oh no! " + e);
                 }
-                endCall();
+                _endCall();
             }
 
 
             Polymer({
                 is: "app-convey",
                 properties: {
-                  user : {
-                    type : Object
-                  },
-                  selectedUser : {
-                    type : Object
-                  },
-                  showVideo : {
-                    type : Boolean,
-                    value : false
-                  }
+                    user: {
+                        type: Object
+                    },
+                    selectedUser: {
+                        type: Object
+                    }
                 },
-                observers : [
-                  '_handlerUser(user)'
+                observers: [
+                    '_handlerUser(user)'
                 ],
-                _handlerUser : function( user ){
-                  if(user){
-                    prereqs.call(this);
-                  }
+                _handlerUser: function(user) {
+                    if (user) {
+                        prereqs.call(this);
+                    }
                 },
-                _initCall : function(){
-                  initiateCall.call(this, this.selectedUser);
+                _initCall: function() {
+                    initiateCall.call(this, this.selectedUser);
+                },
+                _endCall: function() {
+                    _endCall.call(this);
+                },
+                computePhoto: function(user) {
+                    if (!user) {
+                        return
+                    }
+                    return 'background-image:url(' + user.photo + ')';
                 }
             })
 

@@ -30,16 +30,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 
 <link rel="import" href="app-login.html">
+<link rel="import" href="services/auth.html">
 <link rel="import" href="views/user-detail.html">
 <link rel="import" href="views/user-list.html">
 <link rel="import" href="views/user-admin.html">
+<link rel="import" href="views/convey.html">
 <link rel="import" href="app-icons.html">
+
 
 <dom-module id="speekia-app">
 
     <template>
 
         <style>
+        :host {
+          position: relative;
+          height: 100%;
+        }
             .avatar-container {
                 position: relative;
                 border: 2px solid #00AA8D;
@@ -81,6 +88,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 --paper-icon-button-ink-color: white;
             }
 
+            app-drawer-layout,
+            app-header-layout,
+            iron-pages{
+              position: relative;
+              height: 100%;
+            }
+
         </style>
 
         <auth-service model-data="{{Auth}}"></auth-service>
@@ -104,12 +118,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         </div>
                     </app-header>
 
+
                     <!-- nav menu -->
                     <paper-listbox selected="{{_pageData.page}}" attr-for-selected="name" on-iron-activate="_drawerSelected">
+
                         <paper-item name="">Home</paper-item>
+                        <template is="dom-if" if="{{Auth.isLogged}}">
+                          <paper-item name="admin">Admin</paper-item>
+                        </template>
                         <app-login id="login" signed-in={{Auth.isLogged}} user="{{user}}"></app-login>
                     </paper-listbox>
-
                 </app-header-layout>
             </app-drawer>
 
@@ -117,18 +135,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <firebase-query id="query" app-name="bable-land" path="/users" data="{{users}}">
             </firebase-query>
 
+
             <!--   Routes Control  -->
             <iron-pages selected="[[_pageData.page]]" attr-for-selected="name">
-
-
 
                 <user-list name="" users="[[users]]">
                     <paper-icon-button icon="app:menu" drawer-toggle></paper-icon-button>
                 </user-list>
 
-                <user-detail id="detailView" name="detail" user-id="[[_idData.id]]" user="{{user}}"></user-detail>
+                <user-detail id="detailView" name="detail" user-id="[[_idData.id]]" user="{{user}}" selected-user="{{selectedUser}}"></user-detail>
 
                 <user-admin id="userAdmin" name="admin" user="{{user}}"></user-admin>
+
+                <app-convey name="call" user="{{user}}" selected-user="[[selectedUser]]"></app-convey>
 
             </iron-pages>
 

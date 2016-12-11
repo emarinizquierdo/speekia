@@ -76,15 +76,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 _onUserReady: function(user) {
 
                     if (user) {
-                        var config = {
-                            apiKey: "AIzaSyAiMiWE3Y0NTiapMZq0nhVSkakQClnRhm0",
-                            authDomain: "bable-land.firebaseapp.com",
-                            databaseURL: "https://bable-land.firebaseio.com",
-                            storageBucket: "bable-land.appspot.com",
-                            messagingSenderId: "296851505116"
-                        };
 
-                        firebase.initializeApp(config);
                         var userPublic = firebase.database().ref('users/' + user.uid);
                         var userPrivate = firebase.database().ref('usersPrivate/' + user.uid);
                         userPrivate.once('value', function(snapshot) {
@@ -97,6 +89,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                                 };
                             } else {
+                              this.privateUserData = JSON.parse(JSON.stringify(_val));
                                 this.privateUserData.owner = user.uid;
                                 this.privateUserData.email = user.email;
                                 this.privateUserData.displayName = user.displayName;
@@ -111,6 +104,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     photo: user.photoURL
                                 };
                             } else {
+                              this.publicUserData = JSON.parse(JSON.stringify(_val));
                               this.publicUserData.owner = user.uid;
                                 this.publicUserData.photo = user.photoURL;
                                 this.publicUserData = JSON.parse(JSON.stringify(this.publicUserData));

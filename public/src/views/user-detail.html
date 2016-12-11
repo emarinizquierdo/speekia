@@ -12,6 +12,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="/bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="/bower_components/iron-icons/communication-icons.html">
 
 <link rel="import" href="/bower_components/paper-card/paper-card.html">
 <link rel="import" href="/bower_components/paper-fab/paper-fab.html">
@@ -25,7 +26,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="/bower_components/app-layout/app-scroll-effects/app-scroll-effects.html">
 <link rel="import" href="/bower_components/app-layout/app-toolbar/app-toolbar.html">
 <link rel="import" href="/bower_components/polymerfire/firebase-document.html">
-<link rel="import" href="convey.html">
 
 <dom-module id="user-detail">
 
@@ -62,7 +62,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 position: absolute;
                 top: -28px;
                 right: 40px;
-                --paper-fab-background: #EF5458;
+                --paper-fab-background: mediumseagreen;
                 --paper-fab-keyboard-focus-background: #DF4448;
             }
 
@@ -120,7 +120,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <!-- top toolbar -->
                 <app-toolbar>
                     <!-- back button -->
-                    <a href="#/home" tabindex="-1">
+                    <a href="/" tabindex="-1">
                         <paper-icon-button icon="app:arrow-back"></paper-icon-button>
                     </a>
 
@@ -153,10 +153,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             <div class="card-container">
 
-                <paper-card heading="{{selectedUser.displayName}}">
+                <paper-card heading="{{selectedUser.alias}}">
                     <div class="card-content">
 
-                        <p>{{selectedUser.email}}</p>
+                        <p>{{selectedUser.alias}}</p>
 
                         <h4>Ingredients</h4>
 
@@ -175,11 +175,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 <div class="ingredient-name">{{item.description}}</div>
                             </div>
                         </template>
-                        <app-convey user="{{user}}" selected-user="{{selectedUser}}"></app-convey>
                     </div>
                 </paper-card>
-
+<a href="/call" tabindex="-1">
                 <paper-fab icon="{{__computeFavIcon(__favorite)}}" on-tap="__toggleFavorite"></paper-fab>
+              </a>
             </div>
 
         </app-header-layout>
@@ -192,6 +192,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             properties: {
                 userId: {
                     type: String,
+                },
+                selectedUser:{
+                  type: Object,
+                  notify: true
                 },
                 __favorite: {
                     type: Boolean,
@@ -214,7 +218,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this.__favorite = !this.__favorite;
             },
             __computeFavIcon: function(favorite) {
-                return favorite ? 'app:favorite' : 'app:favorite-border';
+                return favorite ? 'communication:phone' : 'communication:phone';
             }
         });
     </script>

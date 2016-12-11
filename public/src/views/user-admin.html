@@ -28,6 +28,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="/bower_components/app-layout/app-scroll-effects/app-scroll-effects.html">
 <link rel="import" href="/bower_components/app-layout/app-toolbar/app-toolbar.html">
 <link rel="import" href="/bower_components/polymerfire/firebase-document.html">
+<link rel="import" href="/bower_components/flag-icon/flag-icon.html">
 
 <dom-module id="user-admin">
 
@@ -93,6 +94,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 @apply(--layout-flex);
             }
 
+            flag-icon{
+              display: block;
+              height: 20px;
+              width: 20px;
+            }
+
+             iron-image{
+              height: 20px;
+            }
+
+            .lang-title{
+              margin-left: 5px;
+            }
+
             @media (max-width: 720px) {
                 .card-container {
                     width: 100%;
@@ -133,23 +148,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                         <paper-input name="name" label="Name" required value="{{userCopy.alias}}"></paper-input>
                         <br>
-                        <input type="checkbox" name="food" value="donuts" checked> I like donuts
-                        <br>
-                        <input type="checkbox" name="food" value="pizza" required> I like pizza
-                        <br>
-                        <paper-checkbox name="food" value="cheese" required>I like cheese</paper-checkbox>
-                        <br>
-                        <paper-dropdown-menu label="Cars" name="cars" required>
+                        <paper-dropdown-menu label="Language to speak" name="language" required value="{{userCopy.language}}">
                             <paper-menu class="dropdown-content">
-                                <paper-item value="volvo">Volvo</paper-item>
-                                <paper-item value="saab">Saab</paper-item>
-                                <paper-item value="fiat">Fiat</paper-item>
-                                <paper-item value="audi">Audi</paper-item>
+                                <paper-item value="es">
+                                    <flag-icon key="ca"></flag-icon><span class="lang-title">Spanish</span></paper-item>
+                                <paper-item value="en">
+                                    <flag-icon key="en"></flag-icon>English</paper-item>
+                                <paper-item value="fr">
+                                    <flag-icon key="fr"></flag-icon>French</paper-item>
                             </paper-menu>
                         </paper-dropdown-menu>
+                        <br>
                         <paper-button raised on-click="_onSubmit">Submit</paper-button>
                         <paper-button raised on-click="_onReset">Reset</paper-button>
-                        <div class="output"></div>
+
 
                     </div>
                 </paper-card>
@@ -185,9 +197,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this.userCopy = JSON.parse(JSON.stringify(user));
             },
             _filterUserData: function(rawUser) {
-
                 return JSON.parse(JSON.stringify(rawUser));
-
             }
         });
     </script>
