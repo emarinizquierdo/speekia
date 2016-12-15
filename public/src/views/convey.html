@@ -22,12 +22,12 @@
             }
 
             .avatar-container {
-              position: relative;
-              border: 2px solid #ffffff;
-              border-radius: 50%;
-              height: 120px;
-              width: 120px;
-              margin: 80px auto 20px;
+                position: relative;
+                border: 2px solid #ffffff;
+                border-radius: 50%;
+                height: 120px;
+                width: 120px;
+                margin: 80px auto 20px;
             }
 
             .avatar-container .image {
@@ -124,6 +124,10 @@
 
                     <h2 class="call-title" on-tap="_initCall">[[selectedUser.alias]]</h2>
 
+                        <p>You have an incoming call from <span id="incomingUser" on-click="_acceptCall">{{incomingUser}}</span></p>
+
+                        <video style="none" id="remotevideo"></video>
+
                     <div style="display:none">
 
                         <div id="alert" class="alert alert-block alert-error" style="display:none;">
@@ -141,7 +145,7 @@
                                     <img src="img/incoming.png" />
                                     <br/>
                                     <p>&nbsp;</p>
-                                    <p>You have an incoming call from <span id="incomingUser" on-click="_acceptCall">{{incomingUser}}</span></p>
+
                                     <audio id="incomingRing" src="ring.ogg" loop/>
                                 </div>
                                 <div class="modal-footer">
@@ -168,7 +172,7 @@
                     </div>
 
                     <div class="buttons-wrapper">
-                        <paper-fab class="button-end-call" icon="communication:call-end" on-tap="__toggleFavorite"></paper-fab>
+                        <paper-fab class="button-end-call" icon="communication:call-end" on-tap="_endCall"></paper-fab>
                         <paper-fab class="button-call" icon="communication:call" on-tap="__toggleFavorite"></paper-fab>
                     </div>
 
@@ -271,7 +275,7 @@
                     };
                     getUserMedia = navigator.webkitGetUserMedia.bind(navigator);
                     attachMediaStream = function(element, stream) {
-                        element.src = webkitURL.createObjectURL(stream);
+                        element.src = URL.createObjectURL(stream);
                         element.play();
                     };
                 }
@@ -334,7 +338,7 @@
                             candidate: data.ice.candidate
                         });
 
-                        peerc.addIceCandidate(candidate);
+                        peerc && peerc.addIceCandidate(candidate);
                         userICE.set(null);
                     }
 
@@ -353,13 +357,15 @@
             function incomingOffer(offer, fromUser) {
 
                 this.incomingUser = atob(fromUser);
-                this.$.incomingAccept.onclick = function() {
-                    //this.$.incomingCall.modal("hide");
-                    acceptCall.call(this, offer, fromUser);
-                }.bind(this);
-                //this.$.incomingCall.modal();
-                //document.getElementById("incomingRing").play();
+                this.offer = offer;
+                this.fromUser = fromUser;
+
             };
+
+            function _acceptCall() {
+              debugger;
+                acceptCall.call(this, this.offer, this.fromUser);
+            }
 
             function incomingAnswer(answer) {
                 var desc = new RTCSessionDescription(JSON.parse(answer));
@@ -393,13 +399,13 @@
                             console.log("End of ICE candidates");
                         }
                     }.bind(this);
+
+
                     pc.addStream(vs);
 
                     pc.onaddstream = function(obj) {
                         console.log("Got onaddstream of type " + obj.type);
                         attachMediaStream(this.$.remotevideo, obj.stream);
-                        this.$.dialing.style.display = "none";
-                        this.$.hangup.style.display = "block";
                     }.bind(this);
 
                     var desc = new RTCSessionDescription(JSON.parse(offer));
@@ -419,7 +425,7 @@
                                 var toUser = mainRef.child(toSend.to);
                                 var toUserSDP = toUser.child("sdp");
                                 toUserSDP.set(toSend);
-                            }, error);
+                            }.bind(this), error);
                         }.bind(this), error, mediaConstraints);
                     }.bind(this), error);
                 }.bind(this), error);
@@ -453,8 +459,6 @@
                     pc.onaddstream = function(obj) {
                         console.log("Got onaddstream of type " + obj.type);
                         attachMediaStream(this.$.remotevideo, obj.stream);
-                        this.$.dialing.style.display = "none";
-                        this.$.hangup.style.display = "block";
                     }.bind(this);
 
                     pc.createOffer(function(offer) {
@@ -479,10 +483,10 @@
 
             function _endCall() {
 
-                console.log("Ending call");
-                document.getElementById("remotevideo").pause();
-                document.getElementById("remotevideo").src = null;
+                this.$.remotevideo.pause();
+                this.$.remotevideo.src = null;
                 peerc = null;
+
             }
 
             function error(e) {
@@ -524,7 +528,9 @@
                         return
                     }
                     return 'background-image:url(' + user.photo + ')';
-                }
+                },
+                _acceptCall : _acceptCall,
+                _endCall : _endCall
             })
 
         })();
